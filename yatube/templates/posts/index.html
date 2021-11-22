@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load addclass %}
+{% block title %}Последние обновления на сайте{% endblock %}
+{% block header %}Последние обновления на сайте{% endblock %}
+{% block content %}
+
+  {% for post in page_obj %}
+    
+    <div>
+      <a href="{% url 'main:profile' post.author.username %}">
+      Автор: {{ post.author.get_full_name|extra_addclass:"text-primary" }} </a>
+      <p>Дата публикации: {{ post.pub_date|date:"d M Y" }} </p>
+    </div>
+    <a href="{% url 'main:post_detail' post.pk %}">
+      <p>{{ post.text|linebreaksbr }}</p>
+    </a>
+    <p>
+      {% if user.is_authenticated %}
+          <div class="ml-2">
+            <a href="{% url 'main:post_edit' post.pk %}" class="btn btn-outline-primary my-2 my-sm-0" type="submit">Edit post</a>
+          </div>
+        {% else %}
+        <div class="ml-2">
+          <a class="btn btn-outline-primary my-2 my-sm-0" type="submit">Login</a>
+        </div>
+        {% endif %}
+    </p
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+
+  {% include 'posts/includes/paginator.html' %}
+
+{% endblock %} 
