@@ -2,8 +2,6 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as r
 
-
-
 app_name = 'users'
 
 urlpatterns = [
