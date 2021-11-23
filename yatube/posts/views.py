@@ -72,32 +72,19 @@ def post_create(request):
 
 @login_required
 def post_edit(request, post_id):
-    obj= get_object_or_404(Post, id=post_id)
-    form = PostForm(request.POST or None, instance= obj)
-    context= {'form': form}
+    obj = get_object_or_404(Post, id=post_id)
+    form = PostForm(request.POST or None, instance=obj)
+    context = {'form': form}
     if form.is_valid():
-        obj= form.save(commit= False)
-
+        obj = form.save(commit=False)
         obj.save()
 
-        # messages.success(request, "You successfully updated the post")
-
-        context= {'form': form}
+        context = {'form': form}
         return redirect('main:post_detail', post_id)
-        # return render(request, 'posts/pos.html', context)
 
     else:
-        context= {'form': form,
-                           'error': 'The form was not updated successfully. Please enter in a title and content'}
-        return render(request,'posts/post_create.html' , context)
-    # print(obj)
-    # print(form)
-    # if request.method == 'POST':
-    #     form = PostForm(request.POST)
-    #     if form.is_valid():
-    #         form.save(commit=True)
-    #         author = Post.author.objects.get(pk=post_id)
-    #         print(author)
-    # else:
-    #     form = PostForm()
+        context = {'form': form,
+                   'error': 'The form was not updated successfully.'}
+        return render(request, 'posts/post_create.html', context)
+
     return render(request, 'posts/post_create.html', context)
