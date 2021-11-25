@@ -146,5 +146,5 @@ dmypy.json
 .mypy_cache
 
 # not unique file for all projects
-hw03_forms/yatube/static/js/
-hw03_forms/yatube/static/style/
+/static/js/**
+static/style/**
