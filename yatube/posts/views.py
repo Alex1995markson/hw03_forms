@@ -1,12 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .models import Post, Group, User
+from django.shortcuts import render, get_object_or_404, redirect
+
 from .forms import PostForm
+from .models import Post, Group, User
 
 
 def index(request):
-    post_list = Post.objects.all().order_by('-pub_date')
+    post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -18,8 +19,8 @@ def index(request):
 
 def profile(request, username):
     if (username):
-        user_info = User.objects.get(username=username)
-        posts_profile = Post.objects.filter(author=user_info.id)
+        user_info = get_object_or_404(User, username=username)
+        posts_profile = user_info.post_set.all()
         paginator = Paginator(posts_profile, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -33,7 +34,7 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    post = Post.objects.get(pk=post_id)
+    post = get_object_or_404(Post, pk=post_id)
     return render(request, 'posts/post_detail.html', {"post": post})
 
 
@@ -53,38 +54,34 @@ def group_posts(request, slug):
 
 @login_required
 def post_create(request):
-
     if request.method == 'POST':
-        form = PostForm(request.POST)  # autor=username
-        print('Here')
-        if form.is_valid():  # is the form valid?
-            value_form = form.save(commit=False)  # yes? save to database
-            value_form.author = username = request.user
-            value_form.save()
-            print('after save')
+        form = PostForm(request.POST)
+        if form.is_valid():
+            data_form = form.save(commit=False)
+            data_form.author = username = request.user
+            data_form.save()
             return redirect('main:profile', username)
         else:
-            print(form.errors)  # no? display errors to end user
+            print(form.errors)
     else:
         form = PostForm()
-    return render(request, 'posts/post_create.html', {'form': form})
+    return render(request, 'posts/post_create.html',
+                  {'form': form,
+                   'card': 'Создание поста',
+                   'title': 'Страница создания поста',
+                   'head': 'Создай новый пост'})
 
 
 @login_required
 def post_edit(request, post_id):
-    obj = get_object_or_404(Post, id=post_id)
-    form = PostForm(request.POST or None, instance=obj)
-    context = {'form': form}
+    post_change = get_object_or_404(Post, id=post_id)
+    form = PostForm(request.POST or None, instance=post_change)
     if form.is_valid():
-        obj = form.save(commit=False)
-        obj.save()
-
-        context = {'form': form}
+        post_change = form.save(commit=True)
         return redirect('main:post_detail', post_id)
-
     else:
         context = {'form': form,
-                   'error': 'The form was not updated successfully.'}
+                   'card': 'Редактирование поста',
+                   'title': 'Страница редактирования поста',
+                   'head': 'Редактируй пост'}
         return render(request, 'posts/post_create.html', context)
-
-    return render(request, 'posts/post_create.html', context)
