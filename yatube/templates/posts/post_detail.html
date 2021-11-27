@@ -10,6 +10,13 @@
       Дата публикации: {{ post.pub_date|date:"d M Y" }}
     </h3>
     <p>{{ post.text|linebreaksbr }}</p>
+    {% if post.group.slug %}
+      <a href="{% url 'main:group' post.group.slug %}">
+        Перейти на группу: {{post.group.title}}
+      </a>
+    {% else %}
+      <p>Нет связанных групп</p>
+    {% endif %}
 
 
 {% endblock %} 

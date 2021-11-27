@@ -11,7 +11,13 @@
         </div>
         <a class="btn btn-primary my-sm-0" href="{% url 'main:post_detail' post.pk %}">Читать</a>
             <p>{{ post.text|linebreaksbr }}</p>
-        
+        {% if post.group.slug %}
+          <a href="{% url 'main:group' post.group.slug %}">
+              Перейти на группу: {{post.group.title}}
+          </a>
+        {% else %}
+          <p>Нет связанных групп</p>
+        {% endif %}
         <p>
             {% if user.is_authenticated %}
                 <div class="ml-2">

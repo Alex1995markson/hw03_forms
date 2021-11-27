@@ -54,26 +54,26 @@ def group_posts(request, slug):
 
 @login_required
 def post_create(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            data_form = form.save(commit=False)
-            data_form.author = username = request.user
-            data_form.save()
-            return redirect('main:profile', username)
-        else:
-            print(form.errors)
-    else:
-        form = PostForm()
-    return render(request, 'posts/post_create.html',
-                  {'form': form,
-                   'card': 'Создание поста',
-                   'title': 'Страница создания поста',
-                   'head': 'Создай новый пост'})
+    form = PostForm(request.POST or None)
+    if not form.is_valid():
+        return render(request, 'posts/post_create.html',
+                      {'form': form,
+                       'card': 'Создание поста',
+                       'title': 'Страница создания поста',
+                       'head': 'Создай новый пост',
+                       'name_button': 'Создай'})
+    data_form = form.save(commit=False)
+    data_form.author = username = request.user
+    data_form.save()
+    return redirect('main:profile', username)
 
 
 @login_required
 def post_edit(request, post_id):
+    current_user = request.user.id
+    new = Post.objects.select_related('author').get(id=post_id)
+    if (current_user != new.author_id):
+        return redirect('main:post_detail', post_id)
     post_change = get_object_or_404(Post, id=post_id)
     form = PostForm(request.POST or None, instance=post_change)
     if form.is_valid():
@@ -83,5 +83,6 @@ def post_edit(request, post_id):
         context = {'form': form,
                    'card': 'Редактирование поста',
                    'title': 'Страница редактирования поста',
-                   'head': 'Редактируй пост'}
+                   'head': 'Редактируй пост',
+                   'name_button': 'Создай'}
         return render(request, 'posts/post_create.html', context)
