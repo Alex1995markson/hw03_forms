@@ -7,7 +7,7 @@
         <div>
             Автор: 
             <a href="{% url 'main:profile' post.author.username %}">
-                {{ post.author.get_full_name|extra_addclass:"text-primary" }} | {{post.author.username|extra_addclass:"text-primary"}} 
+                {{post.author.username|extra_addclass:"text-primary"}} 
             </a>
             <p>Дата публикации: {{ post.pub_date|date:"d M Y" }} </p>
         </div>
@@ -18,8 +18,6 @@
           <a href="{% url 'main:group' post.group.slug %}">
                {{post.group.title}}
           </a>
-        {% else %}
-         
         {% endif %}
         <p>
             {% if user.is_authenticated %}

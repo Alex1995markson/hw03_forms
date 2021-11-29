@@ -1,26 +1,15 @@
 {% extends "base.html" %}
 {% load addclass %}
 {% block title %} 
-    {% if not is_edit %}
-        Страница создания поста
-    {% else %}
-        Страница редактирования поста
-    {% endif %}
+    {{ is_edit|yesno:"Редактирования поста,Cоздания поста" }}
 {% endblock %}
 {% block header %}
-    {% if not is_edit %}
-        Страница создания поста
-    {% else %}
-        Страница редактирования поста
-    {% endif %}
+    {{ is_edit|yesno:"Редактирования поста,Cоздания поста" }}
 {% endblock %}
 {% block content %}
     <div class="row justify-content-center">
         <div class="col-md-8 p-5">
             <div class="card">
-                <div class="card-header">       
-                    {{card}}           
-                </div>
                 <div class="card-body"> 
                     {% if form.errors %}
                         {% for field in form %}
@@ -37,40 +26,37 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form class="form my-3 p-3" action="/create/" method="post">
+                    <form class="form my-3 p-3" 
+                        {% if is_edit %}
+                            action=""
+                        {% else %}
+                            action="/create/"
+                        {% endif%}
+                             
+                        
+                        method="post">
                         {% csrf_token %}
 
                         {% for field in form %}
-                            <div class="form-group row my-3 p-3"
-                                {% if field.field.required %} 
-                                    aria-required="true"
-                                {% else %}
-                                    aria-required="false"
-                                {% endif %}
-                            >    
+                            <div class="form-group row my-3 p-3">    
                                 <label for="{{ field.id_for_label }}">
                                     {{ field.label }}
                                     {% if field.field.required %}
                                         <span class="required text-danger">*</span>
                                     {% endif %}
                                 </label>
+
                                 <div>
-                                {{ field }}
+                                    {{ field }}
                                     {% if field.help_text %}
-                                    <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
-                                        {{ field.help_text|safe }}
-                                    </small>
+                                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
+                                            {{ field.help_text|safe }}
+                                        </small>
                                     {% endif %} 
                                 </div> 
                             </div>
-                            {% endfor %}
-                            </div>
-                        <input type="submit"   
-                                {% if not is_edit %}
-                                    value="Создать"
-                                {% else %}
-                                    value="Редактировать"
-                                {% endif %}>
+                        {% endfor %}
+                            <input type="submit" value='{{is_edit|yesno:"Редактировать, Создать"}}'>
                     </form>
                 </div>  
             </div>

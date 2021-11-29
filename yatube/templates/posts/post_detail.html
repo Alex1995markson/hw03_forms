@@ -1,8 +1,8 @@
 
 {% extends "base.html" %}
 {% load addclass %}
-{% block title %}Страница детальной информации о посте {{post.id}} {% endblock %}
-{% block header %}Страница поста {{post.id}}{% endblock %}
+{% block title %}{{post.test|truncatechars:15}} {% endblock %}
+{% block header %}{{post.text|truncatechars:7}}{% endblock %}
 {% block content %}
     <h3>
       Автор: 
