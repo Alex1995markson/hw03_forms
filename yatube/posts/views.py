@@ -18,19 +18,17 @@ def index(request):
 
 
 def profile(request, username):
-    if (username):
-        user_info = get_object_or_404(User, username=username)
-        posts_profile = user_info.post_set.all()
-        paginator = Paginator(posts_profile, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        context = {
-            'page_obj': page_obj,
-            'author': user_info
-        }
-        return render(request, 'posts/profile.html', context)
-    else:
-        return render(request, '404.html', status=404)
+    author_info = get_object_or_404(User, username=username)
+    posts_profile = Post.objects.\
+        prefetch_related('author').filter(author=author_info.id)
+    paginator = Paginator(posts_profile, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        'author': author_info
+    }
+    return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
@@ -58,31 +56,23 @@ def post_create(request):
     if not form.is_valid():
         return render(request, 'posts/post_create.html',
                       {'form': form,
-                       'card': 'Создание поста',
-                       'title': 'Страница создания поста',
-                       'head': 'Создай новый пост',
-                       'name_button': 'Создай'})
-    data_form = form.save(commit=False)
-    data_form.author = username = request.user
-    data_form.save()
-    return redirect('main:profile', username)
+                       'template_name': 'create'
+                       })
+    post_data = form.save(commit=False)
+    post_data.author = request.user
+    post_data.save()
+    return redirect('main:profile', post_data.author)
 
 
 @login_required
 def post_edit(request, post_id):
-    current_user = request.user.id
-    new = Post.objects.select_related('author').get(id=post_id)
-    if (current_user != new.author_id):
+    post_data = get_object_or_404(Post, id=post_id)
+    form = PostForm(request.POST or None, instance=post_data)
+    if (request.user is post_data.author):
         return redirect('main:post_detail', post_id)
-    post_change = get_object_or_404(Post, id=post_id)
-    form = PostForm(request.POST or None, instance=post_change)
-    if form.is_valid():
-        post_change = form.save(commit=True)
+    if form.is_valid() and request.POST:
+        form.save()
         return redirect('main:post_detail', post_id)
-    else:
-        context = {'form': form,
-                   'card': 'Редактирование поста',
-                   'title': 'Страница редактирования поста',
-                   'head': 'Редактируй пост',
-                   'name_button': 'Создай'}
-        return render(request, 'posts/post_create.html', context)
+    context = {'form': form,
+               'is_edit': True}
+    return render(request, 'posts/post_create.html', context)
