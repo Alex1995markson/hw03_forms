@@ -25,18 +25,10 @@
                             </div>
                         {% endfor %}
                     {% endif %}
-
                     <form class="form my-3 p-3" 
-                        {% if is_edit %}
-                            action=""
-                        {% else %}
-                            action="/create/"
-                        {% endif%}
-                             
-                        
+                        action= "{% if is_edit %}{% url 'main:post_edit' post_id %}{% else %}{% url 'main:post_create' %}{% endif %}"
                         method="post">
                         {% csrf_token %}
-
                         {% for field in form %}
                             <div class="form-group row my-3 p-3">    
                                 <label for="{{ field.id_for_label }}">
@@ -56,7 +48,7 @@
                                 </div> 
                             </div>
                         {% endfor %}
-                            <input type="submit" value='{{is_edit|yesno:"Редактировать, Создать"}}'>
+                        <input type="submit" value='{{is_edit|yesno:"Редактировать, Создать"}}'>
                     </form>
                 </div>  
             </div>

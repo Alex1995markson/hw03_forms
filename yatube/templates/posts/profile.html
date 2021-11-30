@@ -11,11 +11,11 @@
     </h3>
     <p>{{ post.text|linebreaksbr }}</p>
     <div>
-    {% if post.group.slug %}
-      Группа <a href="{% url 'main:group' post.group.slug %}">
-        {{post.group.title}}
-      </a>
-    {% endif %}
+      {% if post.group.slug %}
+        Группа <a href="{% url 'main:group' post.group.slug %}">
+          {{post.group.title}}
+        </a>
+      {% endif %}
     </div>
     {% if not forloop.last %}<hr>{% endif %}
   {% endfor %}
